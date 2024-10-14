@@ -1,5 +1,7 @@
+use std::env;
 use std::io;
 use std::io::Write;
+use std::path::Path;
 use std::process::Command;
 
 fn command_parse_execute(command: String) {
@@ -26,14 +28,44 @@ fn command_parse_execute(command: String) {
     }
 }
 
+fn change_directory(input: &str) {
+    let path = Path::new(input);
+    let current_dir_status = env::set_current_dir(&path);
+    match current_dir_status {
+        Ok(_) => (),
+        Err(e) => println!("Cannot change directory: {}", e),
+    }
+}
+
 fn execute(input: String) {
-    let input_str = input.as_str();
-    match input_str.trim() {
-        "exit" => std::process::exit(0),
-        "help" => {
-            println!("Hello, this is Shark, a custom shell without a purpose.");
+    let input_vec: Vec<&str>;
+
+    if input.trim().contains(char::is_whitespace) {
+        input_vec = input.trim().split_whitespace().collect();
+    } else {
+        input_vec = vec![&input.trim()];
+    }
+
+    if input_vec.len() > 1 {
+        match input_vec.get(0) {
+            Some(&"cd") => {
+                change_directory(input_vec.get(1).expect("Cannot parse the args for `cd`"))
+            }
+            _ => command_parse_execute(input),
         }
-        _ => command_parse_execute(input),
+    } else {
+        match input_vec.get(0) {
+            Some(&"help") => println!("Hey!"),
+            _ => {
+                let command_stripped = input_vec
+                    .first()
+                    .map(|s| s.to_string())
+                    .unwrap_or_else(String::new)
+                    .trim()
+                    .to_string();
+                command_parse_execute(command_stripped);
+            }
+        };
     }
 }
 
