@@ -1,41 +1,19 @@
+use crate::builtin_commands::run_builtin;
+use crate::input_parser::parse;
 use std::process::Command;
 
 pub struct ShellCommand {
-    command: String,
-    args: Option<Vec<String>>,
+    pub command: String,
+    pub args: Option<Vec<String>>,
 }
 
 impl ShellCommand {
-    fn parse(command: String) -> (String, Option<Vec<String>>) {
-        if command.trim().contains(char::is_whitespace) {
-            let (program, args) = command
-                .split_once(char::is_whitespace)
-                .expect("Something went wrong while parsing the command");
-
-            let mut args_vec: Option<Vec<String>> =
-                Some(args.split_whitespace().map(String::from).collect());
-            let program_string = program.to_string();
-
-            if let Some(vec) = &mut args_vec {
-                if let Some(last) = vec.last() {
-                    if last.is_empty() {
-                        vec.pop();
-                    }
-                }
-            }
-
-            (program_string, args_vec)
-        } else {
-            (command.trim().to_string(), None)
-        }
-    }
-
     pub fn create(input: String) -> Self {
-        let (command, args) = Self::parse(input);
+        let (command, args) = parse(input);
         Self { command, args }
     }
 
-    pub fn run(&self) {
+    fn external_command(&self) {
         let output;
         match &self.args {
             Some(args) => {
@@ -50,6 +28,13 @@ impl ShellCommand {
         match output {
             Ok(_) => (),
             Err(e) => println!("shark: {}", e),
+        }
+    }
+
+    pub fn run(&self) {
+        match run_builtin(self) {
+            Some(_) => (),
+            None => self.external_command(),
         }
     }
 }
