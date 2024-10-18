@@ -10,6 +10,18 @@ pub fn run_builtin(full_input: &ShellCommand) -> Option<()> {
     }
 }
 
+fn get_home_dir() -> String {
+    let home_dir = env::var("HOME");
+
+    match home_dir {
+        Ok(d) => d,
+        Err(e) => {
+            println!("shark: cannot get the home directory: {}", e);
+            get_current_dir()
+        }
+    }
+}
+
 fn get_current_dir() -> String {
     let current_dir = env::current_dir();
 
@@ -44,7 +56,11 @@ fn change_directory(input: Option<Vec<String>>) {
             }
         }
         None => {
-            println!("shark: cd needs a path");
+            let change_dir_status = env::set_current_dir(get_home_dir());
+            match change_dir_status {
+                Ok(_) => (),
+                Err(e) => println!("shark: cannot enter the home directory: {}", e),
+            }
         }
     }
 }
