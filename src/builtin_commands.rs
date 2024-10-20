@@ -1,4 +1,3 @@
-use crate::input_parser::parse;
 use crate::shell_command::ShellCommand;
 use std::env;
 use std::path::Path;
@@ -10,7 +9,7 @@ pub fn run_builtin(full_input: &ShellCommand) -> Option<()> {
     }
 }
 
-fn get_home_dir() -> String {
+pub fn get_home_dir() -> String {
     let home_dir = env::var("HOME");
 
     match home_dir {
@@ -38,16 +37,17 @@ fn change_directory(input: Option<Vec<String>>) {
     match input {
         Some(path) => {
             let current_dir = get_current_dir();
-            let new_path = match path.get(0).to_owned() {
-                Some(p) => Path::new(p),
+            let new_path_str = match path.get(0) {
+                Some(p) => p.replacen("~", &get_home_dir(), 1),
                 None => {
                     println!(
                         "shark: path argument flew away somewhere in the middle of your command"
                     );
-                    Path::new(&current_dir)
+                    current_dir
                 }
             };
 
+            let new_path = Path::new(&new_path_str);
             let change_dir_status = env::set_current_dir(new_path);
 
             match change_dir_status {

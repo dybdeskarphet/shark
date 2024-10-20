@@ -1,8 +1,6 @@
+use crate::builtin_commands::get_home_dir;
 use crate::builtin_commands::run_builtin;
 use crate::input_parser::parse;
-use nix::sys::signal::kill;
-use nix::sys::signal::SIGINT;
-use nix::unistd::Pid;
 use std::process::Command;
 
 pub struct ShellCommand {
@@ -21,7 +19,11 @@ impl ShellCommand {
 
         match &self.args {
             Some(args) => {
-                let args_ref: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
+                let processed_args: Vec<String> = args
+                    .iter()
+                    .map(|s| s.replacen("~", &get_home_dir(), 1))
+                    .collect();
+                let args_ref: Vec<&str> = processed_args.iter().map(|s| s.as_str()).collect();
                 child = Command::new(&self.command).args(args_ref).spawn();
             }
             None => {
