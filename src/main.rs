@@ -11,6 +11,7 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect(".");
-        ShellCommand::create(input).run();
+        let child = ShellCommand::create(input);
+        child.run();
     }
 }
