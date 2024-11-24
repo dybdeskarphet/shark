@@ -7,23 +7,20 @@
 - Tilde expansion: `~`
 - Change directory: `cd`
 
-## Usage
+## Installation
 
-1. Clone the repository:
+1. Install with cargo:
+   ```bash
+   cargo install --git=https://github.com/dybdeskarphet/shark
+   shark
+   ```
+ 
+2. Clone and build:
 
    ```bash
    git clone https://github.com/dybdeskarphet/shark
    cd shark
-   ```
-
-2. Build the project:
-
-   ```bash
    cargo build --release
-   ```
-
-3. Run the shell:
-   ```bash
    ./target/release/shark
    ```
 
