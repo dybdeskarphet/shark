@@ -10,7 +10,8 @@ fn main() {
         print!("> ");
         io::stdout().flush().unwrap();
         let mut input = String::new();
-        io::stdin().read_line(&mut input).expect(".");
+        let bytes_read = io::stdin().read_line(&mut input).expect(".");
+        if bytes_read == 0 { /* EOF without any command. Exit */ break; }
         let child = ShellCommand::create(input);
         child.run();
     }
