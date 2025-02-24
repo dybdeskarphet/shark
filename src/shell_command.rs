@@ -17,6 +17,8 @@ impl ShellCommand {
     fn external_command(&self) {
         let child;
 
+        if &self.command == "" { return; }
+
         match &self.args {
             Some(args) => {
                 let processed_args: Vec<String> = args
